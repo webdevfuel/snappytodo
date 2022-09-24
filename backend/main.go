@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/rs/cors"
 )
 
 func main() {
@@ -26,7 +27,14 @@ func main() {
 
 	r.Delete("/tasks/{taskID}", deleteTask)
 
-	http.ListenAndServe("localhost:9000", r)
+	c := cors.New(cors.Options{
+		AllowedOrigins: []string{"http://localhost:5173"},
+		AllowedMethods: []string{http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPatch},
+	})
+
+	handler := c.Handler(r)
+
+	http.ListenAndServe("localhost:9000", handler)
 }
 
 func JSONMiddleware(next http.Handler) http.Handler {
